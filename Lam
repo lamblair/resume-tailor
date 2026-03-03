@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resume Tailor Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inconsolata:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0d0d0d;
+  --surface: #161616;
+  --surface2: #1e1e1e;
+  --border: #2a2a2a;
+  --border-bright: #3a3a3a;
+  --text: #e8e4dc;
+  --muted: #666;
+  --accent: #f0c060;
+  --accent2: #60c0f0;
+  --ai-bg: rgba(255, 80, 80, 0.08);
+  --ai-border: #ff5050;
+  --ai-text: #ff8080;
+  --green: #60d080;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inconsolata', monospace;
+  min-height: 100vh;
+  font-size: 14px;
+}
+
+/* HEADER */
+.header {
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+}
+
+.logo {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.logo h1 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.4rem;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.logo .version {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 2px 7px;
+  border-radius: 2px;
+}
+
+.ai-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* LEGEND */
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 32px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.legend-item { display: flex; align-items: center; gap: 7px; color: var(--muted); }
+.swatch { width: 10px; height: 10px; border-radius: 2px; }
+.swatch.real { background: var(--text); opacity: 0.4; }
+.swatch.ai { background: var(--ai-text); }
+.swatch.expanded { background: var(--accent2); }
+
+/* MAIN GRID */
+.main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: calc(100vh - 110px);
+}
+
+.left-col {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.right-col {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.tab {
+  padding: 12px 20px;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+  font-family: 'Inconsolata', monospace;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* INPUT PANELS */
+.input-panel {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  padding: 20px;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.input-panel.active { display: flex; }
+
+.panel-hint {
+  font-size: 0.65rem;
+  color: var(--muted);
+  line-height: 1.6;
+  padding: 10px 14px;
+  background: var(--surface2);
+  border-left: 2px solid var(--border-bright);
+  border-radius: 0 4px 4px 0;
+}
+
+textarea {
+  flex: 1;
+  min-height: 200px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px;
+  font-family: 'Inconsolata', monospace;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: var(--text);
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+textarea:focus { border-color: var(--accent); }
+textarea::placeholder { color: var(--muted); opacity: 0.5; }
+
+/* EXPERIENCE BANK TABLE */
+.bank-table-wrap { overflow-x: auto; }
+.bank-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.bank-table th {
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  white-space: nowrap;
+  font-family: 'Syne', sans-serif;
+}
+
+.bank-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.5;
+}
+
+.bank-table tr:hover td { background: var(--surface2); }
+
+.cat-tag {
+  display: inline-block;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+.cat-marketing { background: rgba(240,192,96,0.15); color: var(--accent); border: 1px solid rgba(240,192,96,0.3); }
+.cat-finance { background: rgba(96,192,240,0.15); color: var(--accent2); border: 1px solid rgba(96,192,240,0.3); }
+.cat-operations { background: rgba(96,208,128,0.15); color: var(--green); border: 1px solid rgba(96,208,128,0.3); }
+.cat-tech { background: rgba(200,100,255,0.15); color: #c864ff; border: 1px solid rgba(200,100,255,0.3); }
+.cat-leadership { background: rgba(255,160,80,0.15); color: #ffa050; border: 1px solid rgba(255,160,80,0.3); }
+.cat-general { background: rgba(150,150,150,0.15); color: #aaa; border: 1px solid rgba(150,150,150,0.3); }
+
+.add-row-btn {
+  font-family: 'Inconsolata', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: none;
+  border: 1px dashed var(--border);
+  color: var(--muted);
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.add-row-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.editable-cell {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-family: 'Inconsolata', monospace;
+  font-size: 0.75rem;
+  width: 100%;
+  outline: none;
+  padding: 0;
+}
+
+.editable-cell:focus { color: var(--accent); }
+
+select.editable-cell {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 2px 4px;
+  cursor: pointer;
+}
+
+.del-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 4px;
+  transition: color 0.15s;
+}
+.del-btn:hover { color: var(--ai-text); }
+
+/* GENERATE CONTROLS */
+.gen-controls {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mode-chips { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+
+.chip {
+  font-family: 'Inconsolata', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: none;
+  cursor: pointer;
+  color: var(--muted);
+  transition: all 0.15s;
+}
+
+.chip.active, .chip:hover { border-color: var(--accent); color: var(--accent); background: rgba(240,192,96,0.08); }
+
+.gen-btn {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  padding: 10px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.gen-btn:hover { background: #f8d070; }
+.gen-btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+
+.spinner {
+  width: 12px; height: 12px;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-top-color: var(--bg);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+
+.gen-btn.loading .spinner { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* OUTPUT */
+.output-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.output-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.output-actions { display: flex; gap: 8px; }
+
+.action-btn {
+  font-family: 'Inconsolata', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.action-btn:hover { border-color: var(--text); color: var(--text); }
+.action-btn.primary { border-color: var(--accent); color: var(--accent); }
+.action-btn.primary:hover { background: var(--accent); color: var(--bg); }
+
+.output-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  line-height: 1.8;
+}
+
+.output-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.output-placeholder .big-icon {
+  font-size: 2.5rem;
+  opacity: 0.2;
+}
+
+.output-placeholder p {
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  max-width: 260px;
+  line-height: 1.6;
+}
+
+/* RENDERED RESUME */
+.resume-rendered {
+  font-size: 0.82rem;
+  white-space: pre-wrap;
+  line-height: 1.85;
+}
+
+/* AI-generated text highlighting */
+.ai-gen {
+  background: var(--ai-bg);
+  border: 1px solid rgba(255,80,80,0.25);
+  border-radius: 3px;
+  padding: 1px 5px;
+  color: var(--ai-text);
+  position: relative;
+  display: inline;
+  cursor: help;
+}
+
+.ai-gen::after {
+  content: ' ✦AI';
+  font-size: 0.6em;
+  letter-spacing: 0.1em;
+  opacity: 0.7;
+  vertical-align: super;
+}
+
+/* Expanded from bank */
+.bank-expanded {
+  background: rgba(96,192,240,0.07);
+  border: 1px solid rgba(96,192,240,0.2);
+  border-radius: 3px;
+  padding: 1px 5px;
+  color: var(--accent2);
+  display: inline;
+}
+
+.bank-expanded::after {
+  content: ' ◆';
+  font-size: 0.6em;
+  vertical-align: super;
+  opacity: 0.6;
+}
+
+.status-line {
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  padding: 6px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-line.error { color: var(--ai-text); }
+.status-line.success { color: var(--green); }
+
+/* TOOLTIP */
+.tooltip-bar {
+  padding: 6px 20px;
+  background: rgba(255,80,80,0.05);
+  border-bottom: 1px solid rgba(255,80,80,0.15);
+  font-size: 0.62rem;
+  color: var(--ai-text);
+  letter-spacing: 0.06em;
+  display: none;
+}
+
+.tooltip-bar.visible { display: block; }
+
+@media (max-width: 900px) {
+  .main { grid-template-columns: 1fr; height: auto; }
+  .left-col { height: 60vh; }
+  .right-col { height: 60vh; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <h1>Resume Tailor</h1>
+    <span class="version">Pro v2</span>
+  </div>
+  <div class="ai-badge">
+    <div class="dot"></div>
+    <span>Claude AI</span>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="swatch real"></div> Your real experience</div>
+  <div class="legend-item"><div class="swatch ai"></div> AI-generated (review before sending)</div>
+  <div class="legend-item"><div class="swatch expanded"></div> Expanded from your experience bank</div>
+</div>
+
+<div class="main">
+
+  <!-- LEFT COL: Inputs -->
+  <div class="left-col">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('resume')">Resume</button>
+      <button class="tab" onclick="switchTab('bank')">Experience Bank</button>
+      <button class="tab" onclick="switchTab('jd')">Job Description</button>
+    </div>
+
+    <!-- RESUME TAB -->
+    <div class="input-panel active" id="tab-resume">
+      <div class="panel-hint">Your base resume. Include all experience — the AI will select and reorder what's most relevant.</div>
+      <textarea id="resumeText" placeholder="Paste your current resume here...
+
+JANE DOE
+jane@email.com | linkedin.com/in/jane
+
+EXPERIENCE
+Marketing Manager — Acme Corp (2021–2024)
+• Managed social media accounts across 3 platforms
+• Led quarterly campaign planning
+• Collaborated with sales team on lead generation
+
+EDUCATION
+BA Business, NYU 2020
+
+SKILLS
+Excel, PowerPoint, Google Analytics, Salesforce"></textarea>
+    </div>
+
+    <!-- BANK TAB -->
+    <div class="input-panel" id="tab-bank">
+      <div class="panel-hint">Add raw experiences, skills, or accomplishments. Tag each by category — the AI will pull the right ones based on the job description and expand them into strong bullet points.</div>
+
+      <div class="bank-table-wrap">
+        <table class="bank-table" id="bankTable">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Experience / Skill / Achievement</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="bankBody">
+            <!-- Rows populated by JS -->
+          </tbody>
+        </table>
+      </div>
+      <button class="add-row-btn" onclick="addBankRow()">+ Add Row</button>
+    </div>
+
+    <!-- JD TAB -->
+    <div class="input-panel" id="tab-jd">
+      <div class="panel-hint">Paste the full job description. The AI uses this to detect the industry, pull relevant experience bank entries, and match keywords.</div>
+      <textarea id="jdText" placeholder="Paste the full job description here...
+
+Senior Marketing Manager — FinTech Startup
+
+We're looking for a data-driven marketing leader to own our growth strategy...
+
+Requirements:
+• 5+ years marketing experience
+• Strong analytical skills
+• Experience with paid media campaigns
+• Familiarity with B2B SaaS..."></textarea>
+    </div>
+
+    <!-- GENERATE CONTROLS -->
+    <div class="gen-controls">
+      <div class="mode-chips">
+        <button class="chip active" data-mode="ats">ATS Optimized</button>
+        <button class="chip" data-mode="achievements">Quantified</button>
+        <button class="chip" data-mode="concise">Concise</button>
+      </div>
+      <button class="gen-btn" id="genBtn" onclick="generate()">
+        <div class="spinner"></div>
+        <span id="genBtnText">Generate ↗</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- RIGHT COL: Output -->
+  <div class="right-col">
+    <div class="output-header">
+      <span class="output-title">Tailored Resume Output</span>
+      <div class="output-actions">
+        <button class="action-btn" onclick="copyClean()">Copy Clean</button>
+        <button class="action-btn primary" onclick="copyWithFlags()">Copy With Flags</button>
+      </div>
+    </div>
+
+    <div class="tooltip-bar" id="tooltipBar">
+      ✦ Red highlighted text = AI-invented content. Review and edit before submitting your application.
+    </div>
+
+    <div class="output-body" id="outputBody">
+      <div class="output-placeholder" id="outputPlaceholder">
+        <div class="big-icon">◈</div>
+        <p>Fill in your resume, experience bank, and job description — then hit Generate.</p>
+        <p style="margin-top:4px; font-size:0.65rem;">AI-invented content will be highlighted in red so you always know what to review.</p>
+      </div>
+    </div>
+
+    <div class="status-line" id="statusLine">Ready</div>
+  </div>
+
+</div>
+
+<script>
+// ── TABS ──────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.input-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── MODE CHIPS ────────────────────────────────────────
+let selectedMode = 'ats';
+document.querySelectorAll('.chip').forEach(c => {
+  c.addEventListener('click', () => {
+    document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+    c.classList.add('active');
+    selectedMode = c.dataset.mode;
+  });
+});
+
+// ── EXPERIENCE BANK ───────────────────────────────────
+const CATEGORIES = ['Marketing', 'Finance', 'Operations', 'Tech', 'Leadership', 'General'];
+
+const defaultRows = [
+  { cat: 'Marketing', text: 'Ran paid Facebook/Instagram campaigns with $50k monthly budget' },
+  { cat: 'Marketing', text: 'Grew email list from 2k to 15k subscribers in 8 months' },
+  { cat: 'Marketing', text: 'Launched product on Product Hunt, landed #3 of the day' },
+  { cat: 'Finance', text: 'Built monthly P&L reports for 3 business units in Excel' },
+  { cat: 'Finance', text: 'Managed vendor contracts totaling $200k annually' },
+  { cat: 'Finance', text: 'Reduced operational costs through supplier renegotiations' },
+  { cat: 'Operations', text: 'Implemented project tracking system that cut delays by ~30%' },
+  { cat: 'Operations', text: 'Onboarded and trained 5 new team members' },
+  { cat: 'Tech', text: 'Built internal dashboards with Google Looker Studio' },
+  { cat: 'Tech', text: 'Automated weekly reporting with Python scripts' },
+  { cat: 'Leadership', text: 'Led cross-functional team of 8 on product launch' },
+  { cat: 'General', text: 'Fluent in English and Mandarin' },
+];
+
+function catClass(cat) {
+  return 'cat-' + cat.toLowerCase();
+}
+
+function addBankRow(cat = 'General', text = '') {
+  const tbody = document.getElementById('bankBody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>
+      <select class="editable-cell" onchange="updateCatTag(this)">
+        ${CATEGORIES.map(c => `<option value="${c}" ${c===cat?'selected':''}>${c}</option>`).join('')}
+      </select>
+    </td>
+    <td><input class="editable-cell" type="text" value="${text.replace(/"/g,'&quot;')}" placeholder="Describe the experience..."></td>
+    <td><button class="del-btn" onclick="this.closest('tr').remove()">×</button></td>
+  `;
+  tbody.appendChild(tr);
+}
+
+function updateCatTag(sel) { /* live preview update if needed */ }
+
+// Populate defaults
+defaultRows.forEach(r => addBankRow(r.cat, r.text));
+
+function getBankData() {
+  const rows = [];
+  document.querySelectorAll('#bankBody tr').forEach(tr => {
+    const cells = tr.querySelectorAll('td');
+    if (cells.length < 2) return;
+    const cat = cells[0].querySelector('select').value;
+    const text = cells[1].querySelector('input').value.trim();
+    if (text) rows.push({ cat, text });
+  });
+  return rows;
+}
+
+// ── GENERATE ──────────────────────────────────────────
+async function generate() {
+  const resume = document.getElementById('resumeText').value.trim();
+  const jd = document.getElementById('jdText').value.trim();
+  const bank = getBankData();
+  const btn = document.getElementById('genBtn');
+  const btnText = document.getElementById('genBtnText');
+  const statusLine = document.getElementById('statusLine');
+  const outputBody = document.getElementById('outputBody');
+  const tooltipBar = document.getElementById('tooltipBar');
+
+  if (!resume) { setStatus('Paste your base resume first.', 'error'); switchTab('resume'); return; }
+  if (!jd) { setStatus('Paste a job description first.', 'error'); switchTab('jd'); return; }
+
+  btn.disabled = true;
+  btn.classList.add('loading');
+  btnText.textContent = 'Generating...';
+  setStatus('Analyzing job description...', '');
+  outputBody.innerHTML = '<div class="output-placeholder"><div class="big-icon" style="animation: pulse 1s infinite">◈</div><p>Working on your tailored resume...</p></div>';
+  tooltipBar.classList.remove('visible');
+
+  const modeInstructions = {
+    ats: 'Optimize strictly for ATS: standard section headings (EXPERIENCE, EDUCATION, SKILLS), no tables, dense keyword matching from the JD.',
+    achievements: 'Lead every bullet with a quantified achievement. Use numbers, percentages, dollar amounts wherever plausible.',
+    concise: 'Keep bullets tight — max 1.5 lines, action verb first, crisp and punchy.'
+  };
+
+  const bankFormatted = bank.map(r => `[${r.cat}] ${r.text}`).join('\n');
+
+  const prompt = `You are an expert resume writer. Your job is to tailor a resume for a specific role.
+
+MODE: ${modeInstructions[selectedMode]}
+
+━━━ BASE RESUME ━━━
+${resume}
+
+━━━ EXPERIENCE BANK (raw experiences by category) ━━━
+${bankFormatted || '(none provided)'}
+
+━━━ JOB DESCRIPTION ━━━
+${jd}
+
+━━━ INSTRUCTIONS ━━━
+
+1. Detect the industry/function of the role (marketing, finance, tech, etc.)
+2. Select relevant items from the Experience Bank that match the role
+3. Expand selected bank items into strong, specific resume bullet points
+4. Rewrite and tailor the full resume for this role
+5. You MAY invent plausible numbers, metrics, or additional bullet points to strengthen weak areas — but you MUST wrap any invented/embellished content in {{AI_START}} and {{AI_END}} markers
+6. Wrap any content derived/expanded from the Experience Bank in {{BANK_START}} and {{BANK_END}} markers
+7. Keep the candidate's real facts intact and accurate outside of markers
+8. Use strong action verbs, mirror JD keywords naturally
+
+OUTPUT FORMAT: Plain text resume. Use the markers exactly as specified.
+Example: Increased revenue by {{AI_START}}34%{{AI_END}} through strategic {{BANK_START}}paid media campaigns with $50k monthly budget{{BANK_END}}
+
+Output the full tailored resume now:`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
+
+    const raw = data.content.map(b => b.text || '').join('');
+    const rendered = renderOutput(raw);
+
+    const hasAI = raw.includes('{{AI_START}}');
+    const hasBank = raw.includes('{{BANK_START}}');
+
+    outputBody.innerHTML = `<div class="resume-rendered" id="resumeContent">${rendered}</div>`;
+    tooltipBar.classList.toggle('visible', hasAI);
+
+    let statusMsg = '✓ Resume generated';
+    if (hasBank) statusMsg += ' · ◆ experience bank items expanded';
+    if (hasAI) statusMsg += ' · ✦ AI-invented content highlighted in red';
+    setStatus(statusMsg, 'success');
+
+    // Store raw for copy
+    outputBody.dataset.raw = raw;
+
+  } catch (err) {
+    outputBody.innerHTML = `<div class="output-placeholder"><p style="color:var(--ai-text)">${err.message}</p></div>`;
+    setStatus('Error — ' + err.message, 'error');
+  }
+
+  btn.disabled = false;
+  btn.classList.remove('loading');
+  btnText.textContent = 'Generate ↗';
+}
+
+function renderOutput(raw) {
+  // Escape HTML first
+  let text = raw
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
+
+  // Replace bank markers
+  text = text.replace(/\{\{BANK_START\}\}(.*?)\{\{BANK_END\}\}/gs,
+    '<span class="bank-expanded">$1</span>');
+
+  // Replace AI markers
+  text = text.replace(/\{\{AI_START\}\}(.*?)\{\{AI_END\}\}/gs,
+    '<span class="ai-gen" title="AI-invented — review before submitting">$1</span>');
+
+  return text;
+}
+
+function setStatus(msg, type) {
+  const el = document.getElementById('statusLine');
+  el.textContent = msg;
+  el.className = 'status-line' + (type ? ' ' + type : '');
+}
+
+// ── COPY ──────────────────────────────────────────────
+function copyClean() {
+  const raw = document.getElementById('outputBody').dataset.raw || '';
+  if (!raw) return;
+  const clean = raw
+    .replace(/\{\{AI_START\}\}/g, '')
+    .replace(/\{\{AI_END\}\}/g, '')
+    .replace(/\{\{BANK_START\}\}/g, '')
+    .replace(/\{\{BANK_END\}\}/g, '');
+  navigator.clipboard.writeText(clean).then(() => flashBtn('Copy Clean', '✓ Copied!', 0));
+}
+
+function copyWithFlags() {
+  const raw = document.getElementById('outputBody').dataset.raw || '';
+  if (!raw) return;
+  const flagged = raw
+    .replace(/\{\{AI_START\}\}/g, '[AI-GENERATED: ')
+    .replace(/\{\{AI_END\}\}/g, ']')
+    .replace(/\{\{BANK_START\}\}/g, '[FROM BANK: ')
+    .replace(/\{\{BANK_END\}\}/g, ']');
+  navigator.clipboard.writeText(flagged).then(() => flashBtn('Copy With Flags', '✓ Copied!', 1));
+}
+
+function flashBtn(orig, msg, idx) {
+  const btns = document.querySelectorAll('.action-btn');
+  const btn = btns[idx];
+  if (!btn) return;
+  btn.textContent = msg;
+  setTimeout(() => btn.textContent = orig, 2000);
+}
+</script>
+</body>
+</html>
